@@ -1,101 +1,238 @@
-import Image from "next/image";
+"use client";
+import clsx from "clsx";
+import { useEffect, useState } from "react";
+import Xarrow from "react-xarrows";
+
+import { BitState } from "./types";
+import NANDGate from "./NANDGate";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [inputState, setInputState] = useState<BitState>(BitState.OFF);
+  const [saveState, setSaveState] = useState<BitState>(BitState.OFF);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const [gateOutput, setGateOutput] = useState({
+    gate0: BitState.OFF,
+    gate1: BitState.OFF,
+    gate2: BitState.OFF,
+    gate3: BitState.OFF,
+  });
+
+  useEffect(() => {
+    const newGate0 = !(inputState === BitState.ON && saveState === BitState.ON)
+      ? BitState.ON
+      : BitState.OFF;
+    const newGate1 = !(newGate0 === BitState.ON && saveState === BitState.ON)
+      ? BitState.ON
+      : BitState.OFF;
+    const newGate2 = !(
+      newGate0 === BitState.ON && gateOutput.gate3 === BitState.ON
+    )
+      ? BitState.ON
+      : BitState.OFF;
+    const newGate3 = !(newGate2 === BitState.ON && newGate1 === BitState.ON)
+      ? BitState.ON
+      : BitState.OFF;
+
+    setGateOutput({
+      gate0: newGate0,
+      gate1: newGate1,
+      gate2: newGate2,
+      gate3: newGate3,
+    });
+  }, [inputState, saveState, gateOutput.gate3]);
+
+  return (
+    <main className="h-screen w-screen text-black bg-white">
+      <div className="flex h-full justify-between p-12 ">
+        <div className="flex flex-col h-96 items-stretch justify-between">
+          <button
+            id="input_button"
+            className="bg-red-500 border-2 border-black p-2 w-36 h-12"
+            onClick={() =>
+              setInputState(
+                inputState === BitState.ON ? BitState.OFF : BitState.ON
+              )
+            }
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Input {inputState}
+          </button>
+          <button
+            id="save_button"
+            className="bg-red-500 border-2 border-black p-2 w-36 h-12"
+            onClick={() =>
+              setSaveState(
+                saveState === BitState.ON ? BitState.OFF : BitState.ON
+              )
+            }
           >
-            Read our docs
-          </a>
+            Save {saveState}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <div>
+          <NANDGate
+            id="gate_0"
+            gateNumber={0}
+            input0={inputState} // Set input
+            input1={saveState} // Enable input
+            output={gateOutput.gate0}
+            setOutput={() =>
+              setGateOutput({
+                ...gateOutput,
+                gate0: !(
+                  inputState === BitState.ON && saveState === BitState.ON
+                )
+                  ? BitState.ON
+                  : BitState.OFF,
+              })
+            }
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+        </div>
+        <div className="flex items-end">
+          <NANDGate
+            id="gate_1"
+            gateNumber={1}
+            input0={gateOutput.gate0}
+            input1={saveState} // Enable input
+            output={gateOutput.gate1}
+            setOutput={() =>
+              setGateOutput({
+                ...gateOutput,
+                gate1: !(
+                  gateOutput.gate0 === BitState.ON && saveState === BitState.ON
+                )
+                  ? BitState.ON
+                  : BitState.OFF,
+              })
+            }
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
+        </div>
+
+        <div className="flex items-end">
+          <NANDGate
+            id="gate_3"
+            gateNumber={3}
+            input0={gateOutput.gate2}
+            input1={gateOutput.gate1}
+            output={gateOutput.gate3}
+            setOutput={() =>
+              setGateOutput({
+                ...gateOutput,
+                gate3: !(
+                  gateOutput.gate2 === BitState.ON &&
+                  gateOutput.gate1 === BitState.ON
+                )
+                  ? BitState.ON
+                  : BitState.OFF,
+              })
+            }
           />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </div>
+        <div>
+          <NANDGate
+            id="gate_2"
+            gateNumber={2}
+            input0={gateOutput.gate0}
+            input1={gateOutput.gate3}
+            output={gateOutput.gate2}
+            setOutput={() =>
+              setGateOutput({
+                ...gateOutput,
+                gate2: !(
+                  gateOutput.gate0 === BitState.ON &&
+                  gateOutput.gate3 === BitState.ON
+                )
+                  ? BitState.ON
+                  : BitState.OFF,
+              })
+            }
+          />
+        </div>
+        <div
+          id="output"
+          className={clsx(
+            "h-12 w-24 rounded-md text-center  items-center",
+            gateOutput.gate2 === BitState.ON && "bg-yellow-200"
+          )}
+        >
+          Output: {gateOutput.gate2}
+        </div>
+        <Xarrow
+          start="gate_0"
+          end="gate_1"
+          path="smooth"
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: -10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="save_button"
+          end="gate_0"
+          path="smooth"
+          startAnchor={{ position: "right", offset: { y: 10 } }}
+          endAnchor={{ position: "left", offset: { y: 10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="save_button"
+          end="gate_1"
+          path="smooth"
+          startAnchor={{ position: "right", offset: { y: 10 } }}
+          endAnchor={{ position: "left", offset: { y: 10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="input_button"
+          end="gate_0"
+          path="smooth"
+          startAnchor={{ position: "right", offset: { y: -10 } }}
+          endAnchor={{ position: "left", offset: { y: -10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="gate_0"
+          end="gate_2"
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: -10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="gate_1"
+          end="gate_3"
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: 10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="gate_3"
+          end="gate_2"
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: 10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="gate_2"
+          end="gate_3"
+          curveness={-0.5}
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: -10 } }}
+          showHead={false}
+        />
+
+        <Xarrow
+          start="gate_2"
+          end="output"
+          startAnchor={{ position: "right", offset: { y: 0 } }}
+          endAnchor={{ position: "left", offset: { y: 0 } }}
+          showHead={false}
+        />
+      </div>
+    </main>
   );
 }
