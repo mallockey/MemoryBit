@@ -75,16 +75,6 @@ export default function Home() {
             input0={inputState} // Set input
             input1={saveState} // Enable input
             output={gateOutput.gate0}
-            setOutput={() =>
-              setGateOutput({
-                ...gateOutput,
-                gate0: !(
-                  inputState === BitState.ON && saveState === BitState.ON
-                )
-                  ? BitState.ON
-                  : BitState.OFF,
-              })
-            }
           />
         </div>
         <div className="flex items-end">
@@ -94,16 +84,6 @@ export default function Home() {
             input0={gateOutput.gate0}
             input1={saveState} // Enable input
             output={gateOutput.gate1}
-            setOutput={() =>
-              setGateOutput({
-                ...gateOutput,
-                gate1: !(
-                  gateOutput.gate0 === BitState.ON && saveState === BitState.ON
-                )
-                  ? BitState.ON
-                  : BitState.OFF,
-              })
-            }
           />
         </div>
 
@@ -114,17 +94,6 @@ export default function Home() {
             input0={gateOutput.gate2}
             input1={gateOutput.gate1}
             output={gateOutput.gate3}
-            setOutput={() =>
-              setGateOutput({
-                ...gateOutput,
-                gate3: !(
-                  gateOutput.gate2 === BitState.ON &&
-                  gateOutput.gate1 === BitState.ON
-                )
-                  ? BitState.ON
-                  : BitState.OFF,
-              })
-            }
           />
         </div>
         <div>
@@ -134,17 +103,6 @@ export default function Home() {
             input0={gateOutput.gate0}
             input1={gateOutput.gate3}
             output={gateOutput.gate2}
-            setOutput={() =>
-              setGateOutput({
-                ...gateOutput,
-                gate2: !(
-                  gateOutput.gate0 === BitState.ON &&
-                  gateOutput.gate3 === BitState.ON
-                )
-                  ? BitState.ON
-                  : BitState.OFF,
-              })
-            }
           />
         </div>
         <div

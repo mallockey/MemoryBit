@@ -7,7 +7,6 @@ interface Props {
   input0: BitState;
   input1: BitState;
   output: BitState;
-  setOutput: () => void;
   id: string;
 }
 
